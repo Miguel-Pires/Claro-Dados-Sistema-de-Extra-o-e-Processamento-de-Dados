@@ -1,167 +1,152 @@
-<div align="center">
+# Analisador de Faturas — Claro Empresas
 
-<h1>Claro Dados</h1>
-
-<p>Sistema de extração e processamento de dados de faturas Claro Empresas —<br/>converte PDFs de detalhamento em planilhas Excel estruturadas.</p>
-
-<p>
-  <img src="https://img.shields.io/badge/Status-Ativo-22c55e?style=flat-square"/>
-  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white"/>
-  <img src="https://img.shields.io/badge/PyMuPDF-1.24-blue?style=flat-square"/>
-</p>
-
-</div>
+> Extrai automaticamente dados de faturas PDF da Claro Empresas e gera planilhas Excel estruturadas, eliminando processamento manual de centenas de linhas telefônicas.
 
 ---
 
-## Sobre o projeto
+## Screenshots
 
-Claro Dados automatiza a extração de informações de faturas PDF da Claro Empresas. O sistema lê arquivos de detalhamento, identifica cada linha telefônica com seu plano, valor, consumo de dados e data de fidelidade, e exporta tudo em um Excel padronizado — eliminando horas de digitação manual.
-
-O projeto oferece três interfaces de uso: linha de comando, API REST para integração com outros sistemas (como n8n e automações WhatsApp), e um aplicativo desktop com interface gráfica dark theme.
-
----
-
-## Funcionalidades
-
-**Extração de dados**
-- Leitura de PDFs de fatura Claro Empresas com PyMuPDF
-- Identificação de planos: Plugin Smartphone, Tablet e Modem, Claro Pós, Claro Controle, Claro Flex
-- Extração de número, plano, valor, GB compartilhado, consumo (MB) e fidelidade
-- Deduplicação automática de linhas repetidas entre PDFs
-
-**Exportação**
-- Geração de Excel (.xlsx) no layout padrão DETALHAMENTO com openpyxl
-- Suporte a múltiplos PDFs processados em lote com dados unificados
-
-**Três interfaces**
-- CLI (`main.py`) — uso direto no terminal com flag `--debug`
-- API REST (`api.py`) — Flask com endpoints `/upload`, `/generate` e `/extract` para integração externa
-- GUI Desktop (`app_gui.py`) — interface gráfica dark theme com drag-and-drop (customtkinter + tkinterdnd2)
-
-**API REST**
-- Buffer de sessão: envie múltiplos PDFs e processe tudo de uma vez
-- Upload automático do Excel gerado para link público (uguu.se)
-- Limpeza automática de arquivos temporários após 1 hora
+| Tela inicial | PDF carregado | Processamento concluído |
+|:---:|:---:|:---:|
+| ![Tela inicial](docs/screenshot_tela_inicial.png) | ![PDF carregado](docs/screenshot_pdf_carregado.png) | ![Concluído](docs/screenshot_concluido.png) |
 
 ---
 
-## Tecnologias
+## O que faz
 
-| Camada | Tecnologia |
-|---|---|
-| Linguagem | Python 3.9+ |
-| Leitura de PDF | PyMuPDF (fitz) |
-| API REST | Flask 3.0 |
-| Interface gráfica | customtkinter · tkinterdnd2 |
-| Exportação Excel | openpyxl |
-| Empacotamento | PyInstaller |
+Faturas Claro Empresas chegam como PDFs com dezenas ou centenas de páginas. Este sistema lê esses arquivos e extrai, para cada linha telefônica:
 
----
+- Número de telefone
+- Plano contratado (Plugin Smartphone, Tablet e Modem, Claro Pós, Claro Controle, Claro Flex)
+- Valor mensal
+- Consumo em MB
+- GB compartilhado do plano
+- Data de fidelidade
 
-## Rodando localmente
+O resultado é um arquivo Excel no layout padrão **DETALHAMENTO**, pronto para uso.
 
-```bash
-git clone https://github.com/Miguel-Pires/Claro-Dados-Sistema-de-Extra-o-e-Processamento-de-Dados.git
-cd Claro-Dados-Sistema-de-Extra-o-e-Processamento-de-Dados
+### Resultado do teste real
 
-pip install -r requirements.txt
+```
+PDF: 184 páginas | Fatura Claro Empresas
+─────────────────────────────────────────
+Total de linhas únicas: 444
+  Plugin Smartphone:    286 linhas
+  Tablet e Modem:       158 linhas
+GB compartilhado:       900 GB
+Data de fidelidade:     03/11/2026
+Excel gerado em:        ~1 segundo
 ```
 
-**CLI — processar um PDF:**
+---
 
-```bash
-python main.py fatura.pdf
-python main.py fatura.pdf resultado.xlsx --debug
-```
+## Três formas de usar
 
-**API REST:**
+### 1. Interface Desktop (GUI)
 
-```bash
-python api.py
-# Sobe em http://localhost:8765
-```
-
-Endpoints disponíveis:
-
-| Método | Rota | Descrição |
-|---|---|---|
-| GET | `/health` | Status da API |
-| POST | `/upload` | Envia PDF para buffer da sessão |
-| POST | `/generate` | Processa todos os PDFs do buffer e retorna Excel |
-| POST | `/extract` | Processa um único PDF diretamente |
-
-**GUI Desktop:**
+Arraste os PDFs para a janela ou clique para selecionar. Suporta múltiplos arquivos com processamento em lote.
 
 ```bash
 python app_gui.py
+# ou execute o .exe diretamente (sem Python necessário)
+dist/Analisador de Faturas/Analisador de Faturas.exe
 ```
 
-**Gerar executável .exe:**
+### 2. Linha de Comando (CLI)
 
 ```bash
-build.bat
+# Uso básico
+python main.py fatura.pdf
+
+# Com saída personalizada
+python main.py fatura.pdf resultado.xlsx
+
+# Com log de diagnóstico
+python main.py fatura.pdf resultado.xlsx --debug
+```
+
+### 3. API REST (Flask)
+
+Ideal para integração com n8n, Make ou qualquer sistema de automação.
+
+```bash
+python api.py  # inicia na porta 8765
+```
+
+| Método | Rota | Descrição |
+|--------|------|-----------|
+| `GET` | `/health` | Status da API |
+| `POST` | `/upload` | Envia PDF para o buffer da sessão |
+| `POST` | `/generate` | Processa todos os PDFs e retorna Excel |
+| `POST` | `/extract` | Processa PDF único e retorna Excel diretamente |
+
+---
+
+## Integração com n8n
+
+O sistema foi projetado para ser integrado em fluxos automatizados. O workflow **"Leitura dados Claro"** no n8n recebe a fatura via WhatsApp (WAHA), envia para a API Flask, e devolve o Excel pronto para o usuário.
+
+```
+WhatsApp (WAHA) → n8n → POST /upload → POST /generate → Excel → WhatsApp
 ```
 
 ---
 
-## Exemplos de fatura
+## Arquitetura
 
-A pasta `exemplos/` contém três PDFs fictícios prontos para teste, gerados pelo script `exemplos/create_sample_pdfs.py` com dados completamente inventados mas estrutura idêntica às faturas reais.
+```
+src/
+├── parser/
+│   ├── pdf_reader.py       # Orquestrador principal
+│   ├── block_parser.py     # Análise de bounding boxes (posição do texto no PDF)
+│   ├── phone_parser.py     # Extração de números telefônicos
+│   ├── value_parser.py     # Extração de valores monetários
+│   ├── mb_parser.py        # Extração de consumo em MB
+│   ├── shared_plan.py      # Detecção de planos compartilhados
+│   └── fidelity_parser.py  # Extração de datas de fidelidade
+├── models/
+│   └── line.py             # Dataclass PhoneLine
+└── export/
+    └── excel_exporter.py   # Geração do XLSX no layout DETALHAMENTO
 
-| Arquivo | Planos | Linhas | GB |
-|---|---|---|---|
-| `fatura_compartilhado_900gb.pdf` | Plugin Smartphone + Tablet e Modem | 12 | 900 GB compartilhado |
-| `fatura_claro_mix_25gb.pdf` | Claro MIX (Oferta Conjunta) | 8 | 25 GB individual |
-| `fatura_planos_individuais.pdf` | Claro Controle 15GB + Claro Flex + Claro Life | 9 | individual por plano |
-
-Testando com um dos exemplos:
-
-```bash
-python main.py exemplos/fatura_compartilhado_900gb.pdf --debug
+app_gui.py   # Interface desktop (customtkinter + drag-and-drop)
+api.py       # Servidor Flask com buffer de sessão
+main.py      # Entry point CLI
+build.bat    # Compila para .exe via PyInstaller
 ```
 
-Para regenerar os exemplos (requer `reportlab`):
-
-```bash
-pip install reportlab
-python exemplos/create_sample_pdfs.py
-```
+**Sem OCR.** O sistema usa análise de coordenadas de texto (bounding boxes do PyMuPDF) — mais rápido e mais preciso para PDFs com estrutura consistente.
 
 ---
 
-## Estrutura do projeto
+## Instalação
 
+```bash
+git clone https://github.com/Miguel-Pires/Claro-Dados-Sistema-de-Extra-o-e-Processamento-de-Dados
+cd Claro-Dados-Sistema-de-Extra-o-e-Processamento-de-Dados
+pip install -r requirements.txt
 ```
-Claro-dados/
-├── main.py                  # Ponto de entrada CLI
-├── api.py                   # API REST Flask
-├── app_gui.py               # Interface gráfica desktop
-├── build.bat                # Script de build PyInstaller
-├── requirements.txt
-├── exemplos/
-│   ├── create_sample_pdfs.py          # Gerador de faturas fictícias (reportlab)
-│   ├── fatura_compartilhado_900gb.pdf # Exemplo: Plugin Smartphone + Tablet, 900GB
-│   ├── fatura_claro_mix_25gb.pdf      # Exemplo: Claro MIX, 25GB individual
-│   └── fatura_planos_individuais.pdf  # Exemplo: Controle + Flex + Life
-└── src/
-    ├── models/
-    │   └── line.py          # Dataclass PhoneLine
-    ├── parser/
-    │   ├── pdf_reader.py    # Orquestrador — abre PDF e coordena extração
-    │   ├── block_parser.py  # Parser de blocos com bounding boxes
-    │   ├── phone_parser.py  # Extração de números de telefone
-    │   ├── value_parser.py  # Extração de valores monetários
-    │   ├── mb_parser.py     # Extração de consumo em MB
-    │   ├── shared_plan.py   # Detecção de plano compartilhado e GB
-    │   └── fidelity_parser.py # Extração de datas de fidelidade
-    └── export/
-        └── excel_exporter.py # Geração do Excel no layout DETALHAMENTO
-```
+
+### Dependências principais
+
+| Pacote | Uso |
+|--------|-----|
+| `PyMuPDF` | Leitura e parsing de PDF |
+| `Flask` | API REST |
+| `openpyxl` | Geração do Excel |
+| `customtkinter` | Interface gráfica |
+| `tkinterdnd2` | Drag-and-drop na GUI |
+| `PyInstaller` | Empacotamento em .exe |
 
 ---
 
-<div align="center">
-  <sub>Desenvolvido por <a href="https://github.com/Miguel-Pires">Miguel Pires</a></sub>
-</div>
+## Tech Stack
+
+![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat&logo=flask&logoColor=white)
+![PyMuPDF](https://img.shields.io/badge/PyMuPDF-parsing-orange?style=flat)
+![n8n](https://img.shields.io/badge/n8n-automation-EA4B71?style=flat&logo=n8n&logoColor=white)
+
+---
+
+Desenvolvido por **[Miguel Pires](https://github.com/Miguel-Pires)**
