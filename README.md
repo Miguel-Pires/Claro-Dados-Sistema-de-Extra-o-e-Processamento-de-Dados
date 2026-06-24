@@ -106,6 +106,31 @@ build.bat
 
 ---
 
+## Exemplos de fatura
+
+A pasta `exemplos/` contém três PDFs fictícios prontos para teste, gerados pelo script `exemplos/create_sample_pdfs.py` com dados completamente inventados mas estrutura idêntica às faturas reais.
+
+| Arquivo | Planos | Linhas | GB |
+|---|---|---|---|
+| `fatura_compartilhado_900gb.pdf` | Plugin Smartphone + Tablet e Modem | 12 | 900 GB compartilhado |
+| `fatura_claro_mix_25gb.pdf` | Claro MIX (Oferta Conjunta) | 8 | 25 GB individual |
+| `fatura_planos_individuais.pdf` | Claro Controle 15GB + Claro Flex + Claro Life | 9 | individual por plano |
+
+Testando com um dos exemplos:
+
+```bash
+python main.py exemplos/fatura_compartilhado_900gb.pdf --debug
+```
+
+Para regenerar os exemplos (requer `reportlab`):
+
+```bash
+pip install reportlab
+python exemplos/create_sample_pdfs.py
+```
+
+---
+
 ## Estrutura do projeto
 
 ```
@@ -115,6 +140,11 @@ Claro-dados/
 ├── app_gui.py               # Interface gráfica desktop
 ├── build.bat                # Script de build PyInstaller
 ├── requirements.txt
+├── exemplos/
+│   ├── create_sample_pdfs.py          # Gerador de faturas fictícias (reportlab)
+│   ├── fatura_compartilhado_900gb.pdf # Exemplo: Plugin Smartphone + Tablet, 900GB
+│   ├── fatura_claro_mix_25gb.pdf      # Exemplo: Claro MIX, 25GB individual
+│   └── fatura_planos_individuais.pdf  # Exemplo: Controle + Flex + Life
 └── src/
     ├── models/
     │   └── line.py          # Dataclass PhoneLine
