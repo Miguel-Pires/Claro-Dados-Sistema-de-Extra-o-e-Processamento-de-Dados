@@ -21,6 +21,10 @@ dist/
 *.xlsx
 *.xls
 
+# Exceção: exemplos fictícios são rastreados no repositório
+!exemplos/*.pdf
+!exemplos/create_sample_pdfs.py
+
 # Saídas geradas
 output/
 sessions/
